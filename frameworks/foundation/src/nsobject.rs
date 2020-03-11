@@ -71,6 +71,9 @@ impl NSObject {
   #[objrs(selector = "class")]
   pub fn class() -> *mut objrs::Class {}
 
+  #[objrs(selector = "retainCount")]
+  pub fn retain_count(&self) -> usize {}
+
   // #[objrs(selector = "isSubclassOfClass:")]
   // pub unsafe fn is_subclass_of_class(class: *const objrs::Class) -> bool {}
 
