@@ -129,7 +129,7 @@ impl Parse for SelectorAttr {
     let mut kv = KV::new(input);
     let sel: LitStr = kv.parse::<selector, _>()?;
     let call_super: Option<()> = kv.parse::<syn::token::Super, _>()?;
-    let no_impl: Option<()> = if call_super.is_some() { None } else { kv.parse::<no_impl, _>()? };
+    let no_impl: Option<()> = if call_super.is_some() { Some(()) } else { kv.parse::<no_impl, _>()? };
     let class: Option<()> = kv.parse::<class, _>()?;
     let instance: Option<()> = if class.is_some() { None } else { kv.parse::<instance, _>()? };
     let optional: Option<Span> = kv.parse::<optional, _>()?;

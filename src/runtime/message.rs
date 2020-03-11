@@ -33,5 +33,5 @@ extern "C" {
 #[repr(C)]
 pub struct objc_super {
   pub receiver: core::ptr::NonNull<objc::Id>,
-  pub super_class: core::ptr::NonNull<objc::Class>,
+  pub super_class: &'static objc::Class,
 }
