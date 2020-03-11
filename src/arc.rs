@@ -81,6 +81,17 @@ impl<T: marker::NonRootClass + marker::Class + ?Sized> Strong<T> {
   }
 }
 
+impl<T: marker::Class + ?Sized> core::clone::Clone for Strong<T> {
+  #[inline(always)]
+  fn clone(&self) -> Self {
+    unsafe {
+      let objc_retain: unsafe extern "C" fn(core::ptr::NonNull<T>) -> Strong<T> =
+        core::mem::transmute(runtime::objc_retain as *const ());
+      return objc_retain(self.0);
+    }
+  }
+
+}
 // unsafe impl<T: marker::Class + ?Sized> marker::Class for Strong<T> {}
 // unsafe impl<T: marker::RootClass + ?Sized> marker::RootClass for Strong<T> {}
 // unsafe impl<T: marker::NonRootClass + ?Sized> marker::NonRootClass for Strong<T> {

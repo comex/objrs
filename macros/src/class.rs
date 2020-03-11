@@ -166,10 +166,10 @@ pub fn transform_class(class: Class) -> Result<TokenStream, Diagnostic> {
       const #field_end_ident: #native_ty::usize =
         #objrs_root::__objrs::core::mem::size_of::<#field_ty>() + unsafe {
           extern crate std;
-          let uninit = std::mem::MaybeUninit::<#original_item_ident>::uninit();
-          let base_ptr: *const #original_item_ident = &uninit as *const _ as *const #original_item_ident;
-          let field_ptr = &raw const (*base_ptr).#field_ident as *const u8;
-          let offset = field_ptr.offset_from(base_ptr as *const u8);
+          let mut uninit = std::mem::MaybeUninit::<#original_item_ident>::uninit();
+          let base_ptr: *mut #original_item_ident = &raw mut uninit as *mut #original_item_ident;
+          let field_ptr = &raw mut (*base_ptr).#field_ident as *mut u8;
+          let offset = field_ptr.offset_from(base_ptr as *mut u8);
           offset as usize
         };
       const #unpadded_size_of_ident: #native_ty::usize = (((#prev_unpadded_size_of_ident > #field_end_ident) as #native_ty::usize) * #prev_unpadded_size_of_ident) | (((#prev_unpadded_size_of_ident <= #field_end_ident) as #native_ty::usize) * #field_end_ident);
@@ -204,10 +204,10 @@ pub fn transform_class(class: Class) -> Result<TokenStream, Diagnostic> {
       // TODO: do something like https://internals.rust-lang.org/t/discussion-on-offset-of/7440 to avoid going through a deref.
       static IVAR_OFFSET: #native_ty::usize = <#pub_ident as #objrs_root::__objrs::runtime::__objrs::Class>::INSTANCE_START + unsafe {
           extern crate std;
-          let uninit = std::mem::MaybeUninit::<#original_item_ident>::uninit();
-          let base_ptr: *const #original_item_ident = &uninit as *const _ as *const #original_item_ident;
-          let field_ptr = &raw const (*base_ptr).#field_ident as *const u8;
-          let offset = field_ptr.offset_from(base_ptr as *const u8);
+          let mut uninit = std::mem::MaybeUninit::<#original_item_ident>::uninit();
+          let base_ptr: *mut #original_item_ident = &raw mut uninit as *mut #original_item_ident;
+          let field_ptr = &raw mut (*base_ptr).#field_ident as *mut u8;
+          let offset = field_ptr.offset_from(base_ptr as *mut u8);
           offset as usize
       };
       &IVAR_OFFSET as *const _ as *mut _
