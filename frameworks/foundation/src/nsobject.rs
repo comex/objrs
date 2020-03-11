@@ -15,7 +15,7 @@ use objrs::objrs;
 
 #[objrs(class, root_class)]
 #[link(name = "Foundation", kind = "framework")]
-#[repr(C)]
+//#[repr(C)]
 pub struct NSObject {
   #[deprecated]
   isa: *mut objrs::Class,

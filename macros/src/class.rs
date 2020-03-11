@@ -163,7 +163,15 @@ pub fn transform_class(class: Class) -> Result<TokenStream, Diagnostic> {
     let unpadded_size_of_ident = crate::util::priv_ident(&format!("UNPADDED_SIZE_OF_{}", i));
     let field_ty = &field.ty;
     unpadded_size_of.extend(quote!{
-      const #field_end_ident: #native_ty::usize = #objrs_root::__objrs::core::mem::size_of::<#field_ty>() + unsafe { #objrs_root::__objrs::TransmuteHack::<_, #native_ty::usize> { from: &#objrs_root::__objrs::TransmuteHack::<#native_ty::usize, &#original_item_ident> { from: 0 }.to.#field_ident }.to };
+      const #field_end_ident: #native_ty::usize =
+        #objrs_root::__objrs::core::mem::size_of::<#field_ty>() + unsafe {
+          extern crate std;
+          let uninit = std::mem::MaybeUninit::<#original_item_ident>::uninit();
+          let base_ptr: *const #original_item_ident = &uninit as *const _ as *const #original_item_ident;
+          let field_ptr = &raw const (*base_ptr).#field_ident as *const u8;
+          let offset = field_ptr.offset_from(base_ptr as *const u8);
+          offset as usize
+        };
       const #unpadded_size_of_ident: #native_ty::usize = (((#prev_unpadded_size_of_ident > #field_end_ident) as #native_ty::usize) * #prev_unpadded_size_of_ident) | (((#prev_unpadded_size_of_ident <= #field_end_ident) as #native_ty::usize) * #field_end_ident);
     });
     prev_unpadded_size_of_ident = unpadded_size_of_ident;
@@ -194,7 +202,14 @@ pub fn transform_class(class: Class) -> Result<TokenStream, Diagnostic> {
       // This is equivalent to the C code `(size_t)&((T *)0)->field`. This is UB in Rust since it
       // creates a null reference, but I haven't been able to come up with a non-UB alternative.
       // TODO: do something like https://internals.rust-lang.org/t/discussion-on-offset-of/7440 to avoid going through a deref.
-      static IVAR_OFFSET: #native_ty::usize = <#pub_ident as #objrs_root::__objrs::runtime::__objrs::Class>::INSTANCE_START + unsafe { #objrs_root::__objrs::TransmuteHack::<_, #native_ty::usize> { from: &#objrs_root::__objrs::TransmuteHack::<#native_ty::usize, &#original_item_ident> { from: 0 }.to.#field_ident }.to };
+      static IVAR_OFFSET: #native_ty::usize = <#pub_ident as #objrs_root::__objrs::runtime::__objrs::Class>::INSTANCE_START + unsafe {
+          extern crate std;
+          let uninit = std::mem::MaybeUninit::<#original_item_ident>::uninit();
+          let base_ptr: *const #original_item_ident = &uninit as *const _ as *const #original_item_ident;
+          let field_ptr = &raw const (*base_ptr).#field_ident as *const u8;
+          let offset = field_ptr.offset_from(base_ptr as *const u8);
+          offset as usize
+      };
       &IVAR_OFFSET as *const _ as *mut _
     }};
 

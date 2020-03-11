@@ -3,7 +3,7 @@
 // may not be copied, modified, or distributed except according to those terms. For copies of these
 // licenses and more information, see the COPYRIGHT file in this distribution's top-level directory.
 
-#![feature(extern_types)]
+#![feature(extern_types, ptr_offset_from, const_ptr_offset_from, raw_ref_op, const_raw_ptr_deref)]
 #![no_std]
 
 extern crate objrs;
